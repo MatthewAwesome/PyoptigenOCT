@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+*.OCU filter=lfs diff=lfs merge=lfs -text
+*.OCT filter=lfs diff=lfs merge=lfs -text
