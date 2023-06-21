@@ -1,10 +1,6 @@
 """
-This file is contain a class that serves to process OCT images. 
-
-A class will help house variables needed to reconstruct and 
-process OCT data. 
-
-This will keep the code neat. 
+This file contains a class that serves to process raw OCT data
+(e.g. .OCU files from a bioptigen machine). 
 """
 
 # The imports:
@@ -19,16 +15,14 @@ This Class is dedicated to working with raw OCT data,
 and keeps track of pertinent parameters that are used throughout the reconstruction process 
 """
 class OCT_Processor(): 
-    # We initialize config 
-    def __init__(self,configPath=None,octPath=None):
+    # We initialize config params. 
+    def __init__(self,configPath=None):
         if configPath:
             self.configPath = configPath
             self.config = ConfigParser(configPath)
             self.generateLinearizedIndices()
             self.upsampledPixels = None
             self.upFactor = 4
-        if octPath: 
-            self.octPath = octPath
     
     # A function to generate inearized indices
     def generateLinearizedIndices(self):
@@ -144,20 +138,6 @@ class OCT_Processor():
         spectra = np.concatenate((padBlock,spectra,padBlock),axis=1)
         return spectra
     
-    # A function to 
-    def prepareSpectra(self,spectra): 
-        # DC-removal: 
-
-        # Resampling: 
-
-        # Dispersion Compensation: 
-
-        # Windowing: 
-
-        # Padding: 
-
-        self.spectra = spectra
-
     def transformSpectra(self,spectra): 
         # Do the fft: 
         transformedSpectra = np.fft.fft(spectra,axis=-1)
@@ -166,7 +146,7 @@ class OCT_Processor():
         
     # Loads a bunch of raw spectrum data and returns it: 
     def loadOcu(self,path): 
-        self.octPath = path
+        self.ocuPath = path
         ocuLoader = BOCT(path)
         ocuData = ocuLoader.read_oct_volume(diskbuffered=True)
         return ocuData
@@ -194,7 +174,6 @@ class OCT_Processor():
         # And low pass filter it: 
         self.lowPassFilterSpectrum(self.referenceSpectrum)
         return self.referenceSpectrum
-        # alteratively , we can use self.reference.. 
 
     def lowPassFilterSpectrum(self,spectrum):
         sos = signal.butter(4, 0.08, 'lp', output='sos')
@@ -208,15 +187,4 @@ class OCT_Processor():
         lpSpectrum = lpSpectrum[padLength:spectrumLength+padLength]
         self.lowPassReference = lpSpectrum
         return self.lowPassReference
-
-
-    # To reconstruct an OCT image from OCT
-    def reconstructOCT(self,ocuPath,logScaled=False,complexOutput=False): 
-        # Set the path, we might want to access later.  
-        self.octPath = ocuPath
-        # Load the OCU data to be processed: 
-        ocuLoader = BOCT(ocuPath)
-        ocuData = ocuLoader.read_oct_volume(diskbuffered=True)
-        # Next we go through the data, scan by scan, 
-        # and process the data. So we make functions to help here
 
